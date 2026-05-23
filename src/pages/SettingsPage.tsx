@@ -1,47 +1,15 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import { ConfirmDialog } from '../components/ConfirmDialog';
-import { parseTickets } from '../utils/parser';
 
 export function SettingsPage() {
-  const { tickets, practice, replaceTickets, resetAll } = useAppStore();
-  const fileInput = useRef<HTMLInputElement>(null);
+  const { tickets, practice, resetAll } = useAppStore();
   const [confirmClear, setConfirmClear] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
     setToast(msg);
     setTimeout(() => setToast(null), 2500);
-  };
-
-  const onPickFile = () => fileInput.current?.click();
-
-  const onFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-    if (!file) return;
-    try {
-      const text = await file.text();
-      const parsed = parseTickets(text);
-      if (parsed.length === 0) {
-        showToast('Не удалось распознать билеты в файле');
-        return;
-      }
-      await replaceTickets(parsed);
-      showToast(`Импортировано: ${parsed.length} билетов`);
-    } catch {
-      showToast('Ошибка чтения файла');
-    }
-  };
-
-  const onExport = () => {
-    const blob = new Blob([JSON.stringify(tickets, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'tickets.json';
-    a.click();
-    URL.revokeObjectURL(url);
   };
 
   const onClear = async () => {
@@ -67,37 +35,6 @@ export function SettingsPage() {
             <div className="desc">Справочники и шпаргалки</div>
           </div>
           <div style={{ color: 'var(--primary)', fontWeight: 600 }}>{practice.length}</div>
-        </div>
-      </div>
-
-      <div className="settings-group">
-        <div className="settings-row" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 10 }}>
-          <div className="label">
-            <div className="title">Импорт билетов</div>
-            <div className="desc">
-              JSON-массив или текст вида <code>Q: ... / A: ...</code> с заголовками{' '}
-              <code># Категория:</code> и <code>## Tags:</code>
-            </div>
-          </div>
-          <button className="btn btn-primary" onClick={onPickFile}>
-            Выбрать файл
-          </button>
-          <input
-            ref={fileInput}
-            type="file"
-            accept=".json,.txt,.md,text/plain,application/json"
-            style={{ display: 'none' }}
-            onChange={onFileSelected}
-          />
-        </div>
-        <div className="settings-row" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 10 }}>
-          <div className="label">
-            <div className="title">Экспорт билетов</div>
-            <div className="desc">Скачать текущую базу в JSON</div>
-          </div>
-          <button className="btn" onClick={onExport}>
-            Скачать JSON
-          </button>
         </div>
       </div>
 
