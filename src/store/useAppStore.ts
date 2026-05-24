@@ -5,6 +5,7 @@ import {
   getAllPractice,
   putTickets,
   putPractice,
+  clearTickets,
   getMeta,
   setMeta,
   wipeAllData
@@ -22,7 +23,7 @@ interface AppState {
   resetAll: () => Promise<void>;
 }
 
-const SEED_VERSION = 1;
+const SEED_VERSION = 2;
 
 export const useAppStore = create<AppState>((set) => ({
   tickets: [],
@@ -33,6 +34,7 @@ export const useAppStore = create<AppState>((set) => ({
     set({ loading: true });
     const seededVersion = await getMeta<number>('seedVersion');
     if (seededVersion !== SEED_VERSION) {
+      await clearTickets();
       await putTickets(seedTickets);
       await putPractice(seedPractice);
       await setMeta('seedVersion', SEED_VERSION);

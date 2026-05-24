@@ -149,14 +149,22 @@ export function Markdown({ source }: { source: string }) {
       continue;
     }
 
-    if (/^\d+\.\s+/.test(line)) {
-      const items: string[] = [];
-      while (i < lines.length && /^\d+\.\s+/.test(lines[i])) {
-        items.push(lines[i].replace(/^\d+\.\s+/, ''));
-        i++;
+    const olMatch = line.match(/^(\d+)\.\s+(.*)$/);
+    if (olMatch) {
+      const startNum = parseInt(olMatch[1], 10);
+      const items: string[] = [olMatch[2]];
+      i++;
+      while (i < lines.length) {
+        const next = lines[i].match(/^(\d+)\.\s+(.*)$/);
+        if (next) {
+          items.push(next[2]);
+          i++;
+        } else {
+          break;
+        }
       }
       blocks.push(
-        <ol key={`ol-${blocks.length}`}>
+        <ol key={`ol-${blocks.length}`} start={startNum}>
           {items.map((it, idx) => (
             <li key={idx}>{renderInline(parseInline(it), `oli-${idx}`)}</li>
           ))}
