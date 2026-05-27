@@ -23,7 +23,7 @@ interface AppState {
   resetAll: () => Promise<void>;
 }
 
-const SEED_VERSION = 3;
+const SEED_VERSION = 4;
 
 export const useAppStore = create<AppState>((set) => ({
   tickets: [],
