@@ -16,9 +16,12 @@ function pickRandom<T>(arr: T[], avoid?: T): T {
 
 export function TestPage() {
   const tickets = useAppStore((s) => s.tickets);
+  const myTicket = useAppStore((s) => s.myTicket);
+  const toggleMyTicket = useAppStore((s) => s.toggleMyTicket);
   const [current, setCurrent] = useState<Ticket | null>(null);
   const [revealed, setRevealed] = useState(false);
   const [askConfirm, setAskConfirm] = useState(false);
+  const inMyTicket = current ? myTicket.includes(current.id) : false;
 
   const next = useCallback(() => {
     if (tickets.length === 0) return;
@@ -41,6 +44,7 @@ export function TestPage() {
       </p>
 
       <div className="test-card">
+        <div className="ticket-num-big">Билет №{current.id}</div>
         <div className="category" style={{ color: 'var(--primary)', fontSize: 11, textTransform: 'uppercase', marginBottom: 8, fontWeight: 600 }}>
           {current.category}
         </div>
@@ -57,8 +61,14 @@ export function TestPage() {
         </div>
 
         <div className="test-actions">
+          <button
+            className={inMyTicket ? 'btn btn-ghost' : 'btn btn-primary'}
+            onClick={() => current && void toggleMyTicket(current.id)}
+          >
+            {inMyTicket ? '✓ В моём билете' : '＋ В мой билет'}
+          </button>
           <button className="btn" onClick={next}>
-            Следующий вопрос
+            Следующий
           </button>
         </div>
       </div>

@@ -10,9 +10,26 @@ function normalize(str: string): string {
 }
 
 export function searchTickets(tickets: Ticket[], query: string): SearchResult[] {
-  const q = normalize(query);
-  if (!q) return tickets.map((t) => ({ ticket: t, matchedIn: 'question' }));
+  const trimmed = query.trim();
+  if (!trimmed) return tickets.map((t) => ({ ticket: t, matchedIn: 'question' }));
 
+  // Поиск по номеру билета: "3" → 3, 30, 31..., "#42" / "№42" → точное совпадение
+  const idMatch = trimmed.match(/^[#№]?\s*(\d+)$/);
+  if (idMatch) {
+    const prefix = idMatch[1];
+    const exact = trimmed.startsWith('#') || trimmed.startsWith('№');
+    if (exact) {
+      const id = parseInt(prefix, 10);
+      const found = tickets.find((t) => t.id === id);
+      return found ? [{ ticket: found, matchedIn: 'question' }] : [];
+    }
+    // префиксный поиск: "3" → 3, 30, 31, 32, ..., 39
+    const matches = tickets.filter((t) => String(t.id).startsWith(prefix));
+    matches.sort((a, b) => a.id - b.id);
+    return matches.map((t) => ({ ticket: t, matchedIn: 'question' as const }));
+  }
+
+  const q = normalize(trimmed);
   const byQuestion: SearchResult[] = [];
   const byTag: SearchResult[] = [];
   const byAnswer: SearchResult[] = [];

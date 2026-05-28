@@ -4,6 +4,7 @@ const titles: Record<string, string> = {
   '/': 'Exam Assistant',
   '/theory': 'Билеты',
   '/test': 'Тестирование',
+  '/my-ticket': 'Мой билет',
   '/practice': 'Практика',
   '/settings': 'Настройки'
 };
@@ -41,6 +42,10 @@ export function Layout() {
         <NavLink to="/theory">
           <span className="icon">📚</span>
           <span>Теория</span>
+        </NavLink>
+        <NavLink to="/my-ticket">
+          <span className="icon">📋</span>
+          <span>Мой билет</span>
         </NavLink>
         <NavLink to="/test">
           <span className="icon">🎯</span>

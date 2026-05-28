@@ -4,6 +4,7 @@ import { useAppStore } from '../store/useAppStore';
 export function HomePage() {
   const tickets = useAppStore((s) => s.tickets);
   const practice = useAppStore((s) => s.practice);
+  const myTicket = useAppStore((s) => s.myTicket);
 
   return (
     <>
@@ -18,6 +19,16 @@ export function HomePage() {
           <div>
             <div className="title">Теория</div>
             <div className="subtitle">{tickets.length} билетов</div>
+          </div>
+        </Link>
+
+        <Link to="/my-ticket" className="tile">
+          <span className="icon">📋</span>
+          <div>
+            <div className="title">Мой билет</div>
+            <div className="subtitle">
+              {myTicket.length === 0 ? 'Пока пусто' : `Сохранено: ${myTicket.length}`}
+            </div>
           </div>
         </Link>
 

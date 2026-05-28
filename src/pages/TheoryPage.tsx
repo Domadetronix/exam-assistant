@@ -6,9 +6,11 @@ import type { Ticket } from '../types';
 
 export function TheoryPage() {
   const tickets = useAppStore((s) => s.tickets);
+  const myTicket = useAppStore((s) => s.myTicket);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<string>('Все');
   const [openTicket, setOpenTicket] = useState<Ticket | null>(null);
+  const mySet = new Set(myTicket);
 
   const categories = useMemo(() => {
     const set = new Set<string>();
@@ -27,7 +29,7 @@ export function TheoryPage() {
         <span aria-hidden>🔍</span>
         <input
           type="search"
-          placeholder="Поиск по вопросам и ответам"
+          placeholder="Поиск: текст или № билета (например, 42)"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
@@ -62,7 +64,13 @@ export function TheoryPage() {
               className="list-item"
               onClick={() => setOpenTicket(ticket)}
             >
-              <div className="category">{ticket.category}</div>
+              <div className="category">
+                <span className="ticket-num">№{ticket.id}</span>
+                <span>{ticket.category}</span>
+                {mySet.has(ticket.id) && (
+                  <span className="my-ticket-badge" aria-label="В моём билете">★</span>
+                )}
+              </div>
               <div className="question">{ticket.question}</div>
               {matchedIn === 'answer' && (
                 <div className="preview">{ticket.answer}</div>

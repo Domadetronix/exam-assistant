@@ -16,18 +16,22 @@ import { seedPractice } from '../data/seedPractice';
 interface AppState {
   tickets: Ticket[];
   practice: PracticeCategory[];
+  myTicket: number[];
   loaded: boolean;
   loading: boolean;
   init: () => Promise<void>;
   replaceTickets: (tickets: Ticket[]) => Promise<void>;
   resetAll: () => Promise<void>;
+  toggleMyTicket: (id: number) => Promise<void>;
+  clearMyTicket: () => Promise<void>;
 }
 
 const SEED_VERSION = 4;
 
-export const useAppStore = create<AppState>((set) => ({
+export const useAppStore = create<AppState>((set, get) => ({
   tickets: [],
   practice: [],
+  myTicket: [],
   loaded: false,
   loading: false,
   async init() {
@@ -39,9 +43,19 @@ export const useAppStore = create<AppState>((set) => ({
       await putPractice(seedPractice);
       await setMeta('seedVersion', SEED_VERSION);
     }
-    const [tickets, practice] = await Promise.all([getAllTickets(), getAllPractice()]);
+    const [tickets, practice, myTicket] = await Promise.all([
+      getAllTickets(),
+      getAllPractice(),
+      getMeta<number[]>('myTicket')
+    ]);
     tickets.sort((a, b) => a.id - b.id);
-    set({ tickets, practice, loaded: true, loading: false });
+    set({
+      tickets,
+      practice,
+      myTicket: myTicket ?? [],
+      loaded: true,
+      loading: false
+    });
   },
   async replaceTickets(tickets) {
     await putTickets(tickets);
@@ -51,6 +65,18 @@ export const useAppStore = create<AppState>((set) => ({
   },
   async resetAll() {
     await wipeAllData();
-    set({ tickets: [], practice: [], loaded: false });
+    set({ tickets: [], practice: [], myTicket: [], loaded: false });
+  },
+  async toggleMyTicket(id) {
+    const current = get().myTicket;
+    const next = current.includes(id)
+      ? current.filter((x) => x !== id)
+      : [...current, id].sort((a, b) => a - b);
+    set({ myTicket: next });
+    await setMeta('myTicket', next);
+  },
+  async clearMyTicket() {
+    set({ myTicket: [] });
+    await setMeta('myTicket', []);
   }
 }));
